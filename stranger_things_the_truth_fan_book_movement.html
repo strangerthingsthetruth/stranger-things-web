@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stranger Things: The Truth - Libro Oficial del Proyecto</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=VT323&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        stRed: '#e50914',
+                        stRedGlow: '#ff2a2a',
+                        stGold: '#ffaa00',
+                        hawkinsDark: '#06070a',
+                        hawkinsCard: '#11131a'
+                    },
+                    fontFamily: {
+                        title: ['Cinzel', 'serif'],
+                        retro: ['VT323', 'monospace'],
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #06070a;
+            color: #e2e8f0;
+            overflow-x: hidden;
+            transition: background-color 0.8s ease, color 0.8s ease;
+        }
+
+        .neon-title {
+            color: #000;
+            text-shadow: 
+                -2px -2px 0px #e50914,
+                2px -2px 0px #e50914,
+                -2px 2px 0px #e50914,
+                2px 2px 0px #e50914,
+                0 0 15px #e50914,
+                0 0 30px #ff2a2a,
+                0 0 50px #ff2a2a;
+            letter-spacing: -0.03em;
+        }
+
+        .neon-subtitle {
+            color: #ffffff;
+            text-shadow: 
+                0 0 10px #e50914,
+                0 0 20px #ff2a2a,
+                0 0 35px #ff2a2a;
+            letter-spacing: 0.15em;
+        }
+
+        .neon-gold {
+            text-shadow: 0 0 10px rgba(229, 9, 20, 0.6), 0 0 25px rgba(255, 42, 42, 0.5);
+        }
+
+        /* Scanline CRT overlay */
+        .crt-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+            background-size: 100% 3px, 6px 100%;
+            pointer-events: none;
+            z-index: 99;
+            opacity: 0.6;
+        }
+
+        /* Canvas Particle Effects */
+        #sporeCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #06070a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #e50914;
+            border-radius: 4px;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.95; filter: drop-shadow(0 0 15px rgba(229, 9, 20, 0.8)); }
+            50% { opacity: 0.75; filter: drop-shadow(0 0 5px rgba(229, 9, 20, 0.3)); }
+        }
+        .pulse-effect {
+            animation: pulseGlow 3s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased relative min-h-screen selection:bg-red-900 selection:text-white">
+
+    <!-- CRT Overlay & Particle Canvas -->
+    <div class="crt-overlay"></div>
+    <canvas id="sporeCanvas"></canvas>
+
+    <!-- Navigation Header -->
+    <header class="sticky top-0 z-40 bg-black/85 backdrop-blur-md border-b border-red-950/50 px-4 lg:px-8 py-3 transition-colors">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <a href="#" class="flex items-center space-x-3 group">
+                <span class="text-xs tracking-widest text-red-500 uppercase font-mono font-bold group-hover:text-red-400 transition">
+                    <i class="fas fa-book-journal-whills mr-2"></i>STRANGER THINGS &bull; THE TRUTH
+                </span>
+            </a>
+
+            <div class="flex items-center space-x-3">
+                <button id="soundToggleBtn" onclick="toggleAudio()" class="px-3 py-1.5 rounded-lg border border-red-900/60 bg-red-950/30 text-xs font-mono text-red-300 hover:bg-red-900/50 transition flex items-center gap-2">
+                    <i class="fas fa-volume-up" id="soundIcon"></i>
+                    <span id="soundText" class="hidden sm:inline">EFECTOS: ON</span>
+                </button>
+                <a href="#apoyar" class="bg-red-700 hover:bg-red-600 text-white font-mono text-xs px-4 py-1.5 rounded-lg font-bold shadow-lg shadow-red-950 transition flex items-center gap-2">
+                    <i class="fas fa-user-plus text-amber-300"></i>
+                    <span>SUMAR MI APOYO</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 relative z-10 space-y-16">
+
+        <!-- HERO BANNER SECTION -->
+        <section class="text-center space-y-6 pt-6">
+            <div class="inline-block relative">
+                <span class="inline-block px-4 py-1 bg-red-950/80 border border-red-800/60 rounded-full text-xs font-mono text-red-300 tracking-widest uppercase mb-4">
+                    PROYECTO DE LIBRO &bull; MOVIMIENTO OFICIAL DE FANS
+                </span>
+                
+                <!-- Main Header: STRANGER THINGS -->
+                <h1 class="neon-title font-title text-4xl sm:text-6xl lg:text-7xl font-black uppercase tracking-tight leading-none pulse-effect">
+                    STRANGER THINGS
+                </h1>
+                
+                <!-- Subtitle: THE TRUTH -->
+                <h2 class="neon-subtitle font-title text-3xl sm:text-5xl lg:text-6xl font-black uppercase tracking-widest mt-3">
+                    THE TRUTH
+                </h2>
+
+                <p class="text-red-500 font-mono text-sm sm:text-base tracking-widest uppercase mt-4 font-bold">
+                    [ Registro de Apoyo Global en Tiempo Real ]
+                </p>
+                <div class="h-1 bg-red-600 max-w-xs sm:max-w-md mx-auto mt-4 shadow-[0_0_15px_#e50914]"></div>
+            </div>
+
+            <p class="text-stone-300 font-sans text-base sm:text-lg max-w-2xl mx-auto leading-relaxed pt-2">
+                Unimos nuestras voces para demostrar la fuerza de los fans y hacer realidad la publicación del libro <span class="text-red-400 font-bold">Stranger Things: The Truth</span>. 
+            </p>
+        </section>
+
+        <!-- PERSONAS COUNTER SECTION -->
+        <section id="apoyar" class="bg-gradient-to-b from-stone-900/90 to-black/95 border border-red-900/50 rounded-2xl p-6 sm:p-10 shadow-2xl relative overflow-hidden backdrop-blur-sm">
+            <div class="text-center space-y-6">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-950/60 border border-red-900 text-xs font-mono text-red-400">
+                    <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                    RED GLOBAL EN VIVO &bull; FIRESTORE
+                </div>
+
+                <div class="space-y-2">
+                    <span class="text-xs font-mono text-stone-400 block uppercase tracking-widest">Total de Personas Registradas Mundialmente</span>
+                    <div class="text-6xl sm:text-7xl font-mono font-bold text-red-500 neon-gold tracking-tight" id="personCounter">...</div>
+                    <p class="text-xs text-stone-500 font-mono">Personas apoyando este proyecto de libro en tiempo real</p>
+                </div>
+
+                <!-- Interactive Support Button -->
+                <div class="max-w-md mx-auto pt-2">
+                    <button id="supportBtn" onclick="registerPersonSupport()" class="w-full bg-red-800 hover:bg-red-700 text-white font-mono py-4 px-6 rounded-xl font-bold text-sm uppercase tracking-wider shadow-xl shadow-red-950 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-3 border border-red-600/50 group">
+                        <i class="fas fa-users text-amber-300 text-lg group-hover:scale-110 transition-transform" id="btnIcon"></i>
+                        <span id="btnLabel">SUMAR MI APOYO COMO PERSONA</span>
+                    </button>
+                    
+                    <div id="statusMessage" class="mt-3 text-xs font-mono text-stone-400 min-h-[20px]">
+                        Conectando a la red global de Hawkins...
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MANIFESTO SECTION -->
+        <section class="bg-stone-900/60 border border-stone-800 rounded-2xl p-6 sm:p-10 shadow-xl space-y-6">
+            <div class="border-b border-red-950 pb-4">
+                <span class="text-xs font-mono text-red-500 uppercase tracking-widest font-bold">Objetivo de la Comunidad</span>
+                <h2 class="text-2xl sm:text-3xl font-title text-white mt-1">EL MANIFIESTO DE THE TRUTH</h2>
+            </div>
+
+            <div class="space-y-4 text-stone-300 font-sans leading-relaxed text-sm sm:text-base">
+                <p>
+                    <strong class="text-white">Stranger Things: The Truth</strong> nace con el propósito de profundizar en los enigmas no resueltos, las dimensiones ocultas y el trasfondo de Hawkins desde la perspectiva más auténtica de la comunidad.
+                </p>
+                <p>
+                    Queremos demostrar a las editoriales y al público el inmenso interés por esta obra. Cada <span class="text-red-400 font-bold">persona que registra su apoyo</span> en esta web aporta un grano de arena fundamental para llevar el libro a las librerías físicas y digitales de todo el mundo.
+                </p>
+            </div>
+        </section>
+
+        <!-- INTERACTIVE THEORY SUBMISSION & FEED -->
+        <section class="bg-black/80 border border-red-900/50 rounded-2xl p-6 sm:p-10 shadow-2xl space-y-8">
+            <div class="border-b border-red-900/40 pb-4">
+                <span class="text-xs font-mono text-red-500 uppercase tracking-widest font-bold">Comunidad & Teorías PÚBLICAS</span>
+                <h2 class="text-2xl sm:text-3xl font-title text-white mt-1">ENVÍA TU TEORÍA O COMENTARIO</h2>
+                <p class="text-xs font-mono text-stone-400 mt-1">Comparte tus ideas para que todos los fans del mundo las lean en tiempo real.</p>
+            </div>
+
+            <!-- Form -->
+            <form onsubmit="handleTheorySubmit(event)" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-mono text-stone-300 uppercase mb-1">Nombre / Alias</label>
+                        <input type="text" id="authorName" required placeholder="Ej: Dustin de Hawkins" class="w-full bg-stone-900 border border-stone-800 rounded-lg px-4 py-2 text-sm text-stone-200 focus:outline-none focus:border-red-600 font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-mono text-stone-300 uppercase mb-1">Correo (Opcional para Novedades)</label>
+                        <input type="email" id="authorEmail" placeholder="tu-correo@ejemplo.com" class="w-full bg-stone-900 border border-stone-800 rounded-lg px-4 py-2 text-sm text-stone-200 focus:outline-none focus:border-red-600 font-mono">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-mono text-stone-300 uppercase mb-1">Tu Teoría o Mensaje de Apoyo</label>
+                    <textarea id="theoryContent" rows="3" required placeholder="Escribe aquí tu teoría sobre The Truth o mensaje para el proyecto..." class="w-full bg-stone-900 border border-stone-800 rounded-lg px-4 py-2 text-sm text-stone-200 focus:outline-none focus:border-red-600 font-mono"></textarea>
+                </div>
+
+                <button type="submit" id="submitTheoryBtn" class="w-full sm:w-auto px-6 py-3 bg-red-800 hover:bg-red-700 text-white font-mono rounded-lg font-bold text-xs uppercase tracking-wider transition flex items-center justify-center gap-2 border border-red-600/50">
+                    <i class="fas fa-paper-plane"></i>
+                    <span>PUBLICAR EN LA RED PÚBLICA</span>
+                </button>
+            </form>
+
+            <!-- Real-time Theories Feed -->
+            <div class="space-y-4 pt-4 border-t border-stone-900">
+                <h3 class="text-xs font-mono text-amber-400 uppercase tracking-widest flex items-center gap-2">
+                    <i class="fas fa-comments"></i>
+                    <span>Teorías y Mensajes Públicos en Tiempo Real</span>
+                </h3>
+
+                <div id="theoriesFeed" class="space-y-3 max-h-96 overflow-y-auto pr-2">
+                    <p class="text-xs font-mono text-stone-500 text-center py-4">Cargando teorías de la comunidad...</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-stone-900 mt-16 py-8 text-center text-xs font-mono text-stone-600">
+        <p>STRANGER THINGS: THE TRUTH &copy; 2026 &bull; PROYECTO INDEPENDIENTE</p>
+        <p class="mt-1 text-stone-700">HAWKINS FAN MOVEMENT & REGISTRY SYSTEM</p>
+    </footer>
+
+    <!-- FIREBASE MODULE & INTEGRATION -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot, addDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global Application Context
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'st-truth-book-app';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "demo",
+            authDomain: "demo.firebaseapp.com",
+            projectId: "demo",
+            storageBucket: "demo.appspot.com",
+            messagingSenderId: "12345",
+            appId: "1:12345:web:12345"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+        let hasVotedLocally = false;
+
+        // Path references
+        const publicVotesRef = collection(db, 'artifacts', appId, 'public', 'data', 'votes');
+        const publicTheoriesRef = collection(db, 'artifacts', appId, 'public', 'data', 'theories');
+
+        // Authenticate user first
+        async function authenticate() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (err) {
+                console.warn("Auth fallback", err);
+            }
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                initFirebaseListeners();
+            }
+        });
+
+        authenticate();
+
+        /* ===================================================
+           FIREBASE REALTIME LISTENERS
+           =================================================== */
+        function initFirebaseListeners() {
+            if (!currentUser) return;
+
+            // 1. Listen for total supporters count across all users
+            onSnapshot(publicVotesRef, (snapshot) => {
+                const totalSupporters = snapshot.size;
+                document.getElementById('personCounter').textContent = totalSupporters.toLocaleString();
+
+                // Check if current authenticated user has already voted
+                let userVoted = false;
+                snapshot.forEach(docSnap => {
+                    if (docSnap.id === currentUser.uid) {
+                        userVoted = true;
+                    }
+                });
+
+                hasVotedLocally = userVoted;
+                updateVoteUI(userVoted);
+            }, (error) => {
+                console.error("Error listening to votes:", error);
+            });
+
+            // 2. Listen for theories and comments in real-time
+            onSnapshot(publicTheoriesRef, (snapshot) => {
+                const theories = [];
+                snapshot.forEach(docSnap => {
+                    theories.push({ id: docSnap.id, ...docSnap.data() });
+                });
+
+                // Sort newest first
+                theories.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+                renderPublicTheories(theories);
+            }, (error) => {
+                console.error("Error listening to theories:", error);
+            });
+        }
+
+        function updateVoteUI(hasVoted) {
+            const btn = document.getElementById('supportBtn');
+            const btnLabel = document.getElementById('btnLabel');
+            const btnIcon = document.getElementById('btnIcon');
+            const statusMsg = document.getElementById('statusMessage');
+
+            if (hasVoted) {
+                btn.className = "w-full bg-emerald-950/80 border border-emerald-600/60 text-emerald-300 font-mono py-4 px-6 rounded-xl font-bold text-sm uppercase tracking-wider cursor-default flex items-center justify-center gap-3";
+                btnLabel.textContent = "¡TU APOYO PÚBLICO YA HA SIDO REGISTRADO!";
+                btnIcon.className = "fas fa-check-circle text-emerald-400 text-lg";
+                statusMsg.innerHTML = '<span class="text-emerald-400"><i class="fas fa-user-check mr-1"></i> Apoyo guardado en la red global de fans.</span>';
+            } else {
+                btn.className = "w-full bg-red-800 hover:bg-red-700 text-white font-mono py-4 px-6 rounded-xl font-bold text-sm uppercase tracking-wider shadow-xl shadow-red-950 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-3 border border-red-600/50 group";
+                btnLabel.textContent = "SUMAR MI APOYO COMO PERSONA";
+                btnIcon.className = "fas fa-users text-amber-300 text-lg group-hover:scale-110 transition-transform";
+                statusMsg.innerHTML = '<span>Haz clic para añadir tu apoyo personal a la cuenta pública global.</span>';
+            }
+        }
+
+        // Global function for registering support
+        window.registerPersonSupport = async function() {
+            if (!currentUser) return;
+            if (hasVotedLocally) {
+                if (window.playSynthTone) window.playSynthTone(300, 0.2, 'square');
+                return;
+            }
+
+            try {
+                const userVoteDoc = doc(db, 'artifacts', appId, 'public', 'data', 'votes', currentUser.uid);
+                await setDoc(userVoteDoc, {
+                    uid: currentUser.uid,
+                    timestamp: Date.now()
+                });
+
+                if (window.playSynthTone) {
+                    window.playSynthTone(587.33, 0.15, 'sawtooth');
+                    setTimeout(() => window.playSynthTone(880, 0.3, 'sine'), 150);
+                }
+            } catch (err) {
+                console.error("Error saving vote:", err);
+            }
+        };
+
+        // Global function for submitting a theory
+        window.handleTheorySubmit = async function(e) {
+            e.preventDefault();
+            if (!currentUser) return;
+
+            const nameInput = document.getElementById('authorName');
+            const emailInput = document.getElementById('authorEmail');
+            const contentInput = document.getElementById('theoryContent');
+            const submitBtn = document.getElementById('submitTheoryBtn');
+
+            const author = nameInput.value.trim();
+            const email = emailInput.value.trim();
+            const content = contentInput.value.trim();
+
+            if (!author || !content) return;
+
+            submitBtn.disabled = true;
+            submitBtn.opacity = 0.6;
+
+            try {
+                await addDoc(publicTheoriesRef, {
+                    author: author,
+                    email: email || '',
+                    content: content,
+                    uid: currentUser.uid,
+                    timestamp: Date.now()
+                });
+
+                contentInput.value = '';
+                if (window.playSynthTone) window.playSynthTone(659.25, 0.25, 'sine');
+            } catch (err) {
+                console.error("Error submitting theory:", err);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.opacity = 1;
+            }
+        };
+
+        function renderPublicTheories(theories) {
+            const container = document.getElementById('theoriesFeed');
+            container.innerHTML = '';
+
+            if (theories.length === 0) {
+                container.innerHTML = '<p class="text-xs font-mono text-stone-500 text-center py-4">Sé el primero en publicar una teoría sobre The Truth.</p>';
+                return;
+            }
+
+            theories.forEach(t => {
+                const dateStr = t.timestamp ? new Date(t.timestamp).toLocaleDateString() + ' ' + new Date(t.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'Hace un momento';
+                const card = document.createElement('div');
+                card.className = "bg-stone-900/70 border border-stone-800 rounded-xl p-4 space-y-1 font-mono text-xs";
+                card.innerHTML = `
+                    <div class="flex justify-between items-center text-red-400 font-bold">
+                        <span><i class="fas fa-user-astronaut mr-2"></i>${escapeHtml(t.author)}</span>
+                        <span class="text-stone-500 font-normal text-[10px]">${dateStr}</span>
+                    </div>
+                    <p class="text-stone-300 font-sans text-sm pt-1">${escapeHtml(t.content)}</p>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function escapeHtml(text) {
+            return (text || '').replace(/[&<>"']/g, function(m) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+            });
+        }
+    </script>
+
+    <!-- JAVASCRIPT AUDIO & CANVAS LOGIC -->
+    <script>
+        /* ===================================================
+           AUDIO SYNTH ENGINE & PARTICLES
+           =================================================== */
+        let audioCtx = null;
+        let audioEnabled = true;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        window.playSynthTone = function(freq, duration = 0.2, type = 'sawtooth') {
+            if (!audioEnabled) return;
+            try {
+                initAudio();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+                gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) {}
+        };
+
+        window.toggleAudio = function() {
+            audioEnabled = !audioEnabled;
+            const btnText = document.getElementById('soundText');
+            const icon = document.getElementById('soundIcon');
+            if (audioEnabled) {
+                btnText.textContent = "EFECTOS: ON";
+                icon.className = "fas fa-volume-up";
+                playSynthTone(440, 0.2);
+            } else {
+                btnText.textContent = "EFECTOS: OFF";
+                icon.className = "fas fa-volume-mute";
+            }
+        };
+
+        const canvas = document.getElementById('sporeCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        class Particle {
+            constructor() { this.reset(); }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 0.5;
+                this.speedX = (Math.random() - 0.5) * 0.4;
+                this.speedY = Math.random() * 0.6 + 0.2;
+                this.opacity = Math.random() * 0.5 + 0.2;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.y > canvas.height) { this.reset(); this.y = 0; }
+            }
+            draw() {
+                ctx.fillStyle = `rgba(229, 9, 20, ${this.opacity * 0.6})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            resizeCanvas();
+            particles = [];
+            const count = Math.floor((canvas.width * canvas.height) / 15000);
+            for (let i = 0; i < count; i++) particles.push(new Particle());
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animateParticles);
+        }
+
+        window.onload = function() {
+            initParticles();
+            animateParticles();
+        };
+
+        window.onresize = resizeCanvas;
+    </script>
+</body>
+</html>
